@@ -116,7 +116,17 @@ def main():
     while protolib.decodeMessage(proto_in, packet):
         num_packets += 1
         # ReadReq is 1 and WriteReq is 4 in src/mem/packet.hh Command enum
-        cmd = 'r' if packet.cmd == 1 else ('w' if packet.cmd == 4 else 'u')
+        # ReadResp is 2 and WriteResp is 5
+        # Writeback is 6, 
+        # ReadExReq is 18
+        cmd = 'u'
+        if packet.cmd == 1 or packet.cmd == 18:
+            cmd = 'r'
+        elif packet.cmd == 4 or packet.cmd == 6:
+            cmd = 'w'
+        elif packet.cmd == 2 or packet.cmd == 5:
+            cmd = 'b'
+        #cmd = 'r' if packet.cmd == 1 else ('w' if packet.cmd == 4 or packet.cmd == 6 else ('b' if packet.cmd == 2 or packet.cmd == 5) else 'u')
         if packet.HasField('pkt_id'):
             ascii_out.write('%s,' % (packet.pkt_id))
         if packet.HasField('flags'):
