@@ -110,11 +110,6 @@ def calculate_block(data_dict_rows):
             str ( int(data_dict_rows[row]['sim_insts']) -
                     int(data_dict_rows[row - 1]['sim_insts'])
                 )
-            # if the reflected miss penalty is smaller than power boosting benefit...
-            if int(data_dict_rows[row]['L2 access pp']) < 2000:
-                #print data_dict_rows[row]['L2 access pp']
-                saved_time += (2000 - int(data_dict_rows[row]['L2 access pp'])) * 10 # ns
-    return saved_time
 
 def analyze_files_by_one_block(data_dir):
 	output_column_list = ['benchmark', 'size']
@@ -150,13 +145,12 @@ def analyze_files_by_one_block(data_dir):
 	output_file.close()
 
 def analyze_files_by_all_blocks(data_dir):
-    output_column_list = ['benchmark', 'size', 'block']
+    output_column_list = ['benchmark', 'size', 'block', 'L2 access pp', 'N_inst pp']
     output_column_list.extend(tags_list)
     # print output_column_list
     
     try:
-    	#output_file = open ('result-1us.csv', 'w')
-    	output_file = open ('cal_stats.txt', 'w')
+    	output_file = open ('result-100us-W2.csv', 'w')
     except:
     	print "cannot open result.txt as our result."
     	return;
@@ -175,16 +169,16 @@ def analyze_files_by_all_blocks(data_dir):
             file_dir = data_dir+size+"/"+bench
 			#print file_dir
             output_list = read_all_blocks(file_dir,tags_list)
-            print bench, calculate_block(output_list)
-            #if output_list is None:
-            #    continue;
-            #for i in xrange(len(output_list)):
-            #    output_list[i]['benchmark'] = bench
-            #    output_list[i]['size'] = size
-            #    content_line = ''
-            #    for key in output_column_list:
-            #        content_line += output_list[i][key] + ','
-            #    output_file.write(content_line+'\n')
+            if output_list is None:
+                continue;
+            calculate_block(output_list)
+            for i in xrange(len(output_list)):
+                output_list[i]['benchmark'] = bench
+                output_list[i]['size'] = size
+                content_line = ''
+                for key in output_column_list:
+                    content_line += output_list[i][key] + ','
+                output_file.write(content_line+'\n')
     output_file.close()
 
 #analyze_files("/Users/ShuiHan/Yue_Parsec_")
