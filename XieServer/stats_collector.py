@@ -57,7 +57,9 @@ def read_one_block(file_dir, tags_list, tags_value_dict,
 
 	stats_file.close()
 
-def read_all_blocks(file_dir, tags_list, file_name = "stats.txt"):
+def read_all_blocks(file_dir, tags_list, file_name = "stats.txt", bundle = 1):
+    """ works as the main block of analyze function.
+    """
     try:
         stats_file = open (file_dir +'/'+ file_name, 'r')
     except:
@@ -68,14 +70,25 @@ def read_all_blocks(file_dir, tags_list, file_name = "stats.txt"):
     output_row_list = []
     #print output_row_list
 
+    # bund the stats of 'bundle' periods together.
+    bundle_remain = bundle 
     for i in range(len(line_list)):
+    # for each line do the following check
         if ( 'Begin Simulation Statistic' in line_list[i]):
             output_row_list.append (dict([(key, '0') for key in tags_list]))
             output_row_list[block_counter]['block'] = str(block_counter)
-            block_counter += 1
+            if bundled_remain == bundle:
+                block_counter += 1
+                bundle_remain -=1
+            else:
+                if bundle_remain == 1:
+                    bundle_remain = bundle
+                else:
+                    bundle_remain -= 1
+                
         for tag in tags_list:
             if ( tag in line_list[i]):
-        	    output_row_list[block_counter -1 ][tag] = line_list[i].split()[1]
+        	    output_row_list[block_counter -1 ][tag] += float(line_list[i].split()[1])
     stats_file.close()
     return output_row_list
 
@@ -145,11 +158,12 @@ def analyze_files_by_all_blocks(data_dir):
                 output_list[i]['size'] = size
                 content_line = ''
                 for key in output_column_list:
-                    content_line += output_list[i][key] + ','
+                    content_line += str(output_list[i][key]) + ','
                 output_file.write(content_line+'\n')
     output_file.close()
 
 #analyze_files("/Users/ShuiHan/Yue_Parsec_")
-analyze_files_by_all_blocks("./Parsec_100us_")
+#analyze_files_by_all_blocks("./Parsec_100us_")
+analyze_files_by_all_blocks("./Parsec_1us_")
 
 
