@@ -12,6 +12,7 @@ def clean(fileName):
 		elif not re.search('^'+'|'.join(remove_keys),line):
 			#print line
 			cleanf.write(line)
+	bibf.close()
 	cleanf.close()
 	os.remove(fileName)
 	os.rename(fileName + '.tmp', fileName)
